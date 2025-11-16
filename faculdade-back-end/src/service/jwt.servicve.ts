@@ -1,4 +1,3 @@
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -23,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Recrutador não encontrado');
     }
 
-    const { senha, ...result } = recrutador; 
+    const { senha, ...result } = recrutador;
     return result;
   }
 }

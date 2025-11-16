@@ -18,5 +18,5 @@ RUN npx prisma generate && npm run build
 
 EXPOSE 3000
 
-# Script para sincronizar schema e iniciar a aplicação
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm run start:prod"]
+# Script para sincronizar schema, executar seed e iniciar a aplicação
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npx prisma db seed && npm run start:prod"]

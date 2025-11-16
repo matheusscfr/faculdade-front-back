@@ -1,16 +1,15 @@
-import { IsEmail } from "class-validator";
+import { IsEmail } from 'class-validator';
 
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty } from 'class-validator';
 
-import { IsString } from "class-validator";
+import { IsString } from 'class-validator';
 
-export class loginRecrutadorDto{
+export class loginRecrutadorDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    senha: string;
+  @IsString()
+  @IsNotEmpty()
+  senha: string;
 }

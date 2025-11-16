@@ -1,32 +1,28 @@
-import { IsNotEmpty, Matches } from "class-validator";
+import { IsNotEmpty, Matches } from 'class-validator';
 
-import { IsString } from "class-validator";
+import { IsString } from 'class-validator';
 
 export class CriarEmpresaDto {
+  @IsString()
+  @IsNotEmpty()
+  nome: string;
 
-    @IsString()
-    @IsNotEmpty()
-    nome: string;
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\d{14}$/, { message: 'CNPJ deve conter 14 dígitos' })
+  cnpj: string;
 
-    @IsString()
-    @IsNotEmpty()
-    @Matches(/^\d{14}$/, { message: 'CNPJ deve conter 14 dígitos' })
-    cnpj: string;
+  @IsString()
+  @IsNotEmpty()
+  endereco: string;
 
-    @IsString()
-    @IsNotEmpty()
-    endereco: string;
+  @IsString()
+  @IsNotEmpty()
+  setor: string;
 
-    @IsString()
-    @IsNotEmpty()
-    setor: string;
+  @IsString()
+  descricao: string;
 
-    @IsString()
-    descricao: string;
-
-    @IsString()
-    website: string;
-
+  @IsString()
+  website: string;
 }
-    
-    

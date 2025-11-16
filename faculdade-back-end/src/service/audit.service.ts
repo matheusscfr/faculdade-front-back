@@ -76,7 +76,11 @@ export class AuditService {
   /**
    * Registra cadastro de novo usuário
    */
-  logUserCreated(userName: string, userId: string, userType: 'recrutador' | 'aluno'): void {
+  logUserCreated(
+    userName: string,
+    userId: string,
+    userType: 'recrutador' | 'aluno',
+  ): void {
     this.writeLog({
       timestamp: new Date().toISOString(),
       eventType: AuditEventType.USER_CREATED,
@@ -90,7 +94,11 @@ export class AuditService {
   /**
    * Registra atualização de dados do usuário
    */
-  logUserUpdated(userName: string, userId: string, fieldsUpdated: string[]): void {
+  logUserUpdated(
+    userName: string,
+    userId: string,
+    fieldsUpdated: string[],
+  ): void {
     this.writeLog({
       timestamp: new Date().toISOString(),
       eventType: AuditEventType.USER_UPDATED,
@@ -104,7 +112,11 @@ export class AuditService {
   /**
    * Registra exclusão de usuário
    */
-  logUserDeleted(userName: string, userId: string, userType: 'recrutador' | 'aluno'): void {
+  logUserDeleted(
+    userName: string,
+    userId: string,
+    userType: 'recrutador' | 'aluno',
+  ): void {
     this.writeLog({
       timestamp: new Date().toISOString(),
       eventType: AuditEventType.USER_DELETED,
@@ -184,7 +196,12 @@ export class AuditService {
   /**
    * Registra criação de oferta de contratação
    */
-  logJobOfferCreated(recruiterName: string, recruiterId: string, studentName: string, position: string): void {
+  logJobOfferCreated(
+    recruiterName: string,
+    recruiterId: string,
+    studentName: string,
+    position: string,
+  ): void {
     this.writeLog({
       timestamp: new Date().toISOString(),
       eventType: AuditEventType.JOB_OFFER_CREATED,
@@ -198,7 +215,11 @@ export class AuditService {
   /**
    * Registra aceitação de oferta de contratação
    */
-  logJobOfferAccepted(studentName: string, studentId: string, position: string): void {
+  logJobOfferAccepted(
+    studentName: string,
+    studentId: string,
+    position: string,
+  ): void {
     this.writeLog({
       timestamp: new Date().toISOString(),
       eventType: AuditEventType.JOB_OFFER_ACCEPTED,
@@ -212,7 +233,11 @@ export class AuditService {
   /**
    * Registra rejeição de oferta de contratação
    */
-  logJobOfferRejected(studentName: string, studentId: string, position: string): void {
+  logJobOfferRejected(
+    studentName: string,
+    studentId: string,
+    position: string,
+  ): void {
     this.writeLog({
       timestamp: new Date().toISOString(),
       eventType: AuditEventType.JOB_OFFER_REJECTED,
@@ -226,7 +251,11 @@ export class AuditService {
   /**
    * Registra criação de empresa
    */
-  logCompanyCreated(companyName: string, companyId: string, createdBy?: string): void {
+  logCompanyCreated(
+    companyName: string,
+    companyId: string,
+    createdBy?: string,
+  ): void {
     this.writeLog({
       timestamp: new Date().toISOString(),
       eventType: AuditEventType.COMPANY_CREATED,
@@ -239,7 +268,11 @@ export class AuditService {
   /**
    * Registra atualização de perfil de aluno
    */
-  logStudentProfileUpdated(studentName: string, studentId: string, updatedFields: string[]): void {
+  logStudentProfileUpdated(
+    studentName: string,
+    studentId: string,
+    updatedFields: string[],
+  ): void {
     this.writeLog({
       timestamp: new Date().toISOString(),
       eventType: AuditEventType.STUDENT_PROFILE_UPDATED,
@@ -253,7 +286,12 @@ export class AuditService {
   /**
    * Método genérico para registrar eventos customizados
    */
-  logCustomEvent(eventType: string, description: string, userName?: string, additionalData?: any): void {
+  logCustomEvent(
+    eventType: string,
+    description: string,
+    userName?: string,
+    additionalData?: any,
+  ): void {
     this.writeLog({
       timestamp: new Date().toISOString(),
       eventType: eventType as AuditEventType,
