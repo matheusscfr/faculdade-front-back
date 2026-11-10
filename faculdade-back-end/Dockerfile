@@ -1,22 +1,15 @@
-FROM node:18-alpine
+# ---------- build ----------
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /build
+COPY pom.xml .
+RUN mvn -q -B dependency:go-offline
+COPY src ./src
+RUN mvn -q -B package -DskipTests
 
-# Instalar dependências do sistema
-RUN apk add --no-cache openssl
-
+# ---------- runtime ----------
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-
-# Criar diretório de logs
 RUN mkdir -p /app/logs
-
-# Copiar e instalar dependências
-COPY package*.json ./
-RUN npm ci
-
-# Copiar código e gerar Prisma
-COPY . .
-RUN npx prisma generate && npm run build
-
+COPY --from=build /build/target/*.jar app.jar
 EXPOSE 3000
-
-# Script para sincronizar schema, executar seed e iniciar a aplicação
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npx prisma db seed && npm run start:prod"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

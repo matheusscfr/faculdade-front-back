@@ -1,0 +1,43 @@
+server:
+  port: ${PORT:3000}
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: faculdade-back-end
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/faculdade}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:docker}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+        type.preferred_instant_jdbc_type: TIMESTAMP
+        default_batch_fetch_size: 100
+  flyway:
+    enabled: true
+    # Bancos que já existiam (criados pelo "prisma db push") são marcados como V1 sem reexecutar o script
+    baseline-on-migrate: true
+    baseline-version: 1
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: always
+    deserialization:
+      fail-on-unknown-properties: true
+    serialization:
+      write-dates-as-timestamps: false
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:seuSegredoSuperSecreto}
+    expiration: 1d
+  audit:
+    log-dir: ${AUDIT_LOG_DIR:logs}
+  seed:
+    empresas: ${SEED_EMPRESAS:true}
+    alunos: ${SEED_ALUNOS:true}

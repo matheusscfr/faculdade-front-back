@@ -1,98 +1,87 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# faculdade-back-end (Java / Spring Boot)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API de recrutamento de alunos (UniDraft). Reescrita do antigo back-end NestJS + Prisma em
+**Java 17+ / Spring Boot 3.5**, mantendo as **mesmas rotas, o mesmo formato JSON (snake_case)
+e o mesmo banco PostgreSQL** — o front-end (`unidraft-ui`) funciona sem alterações.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Stack
 
-## Description
+| Antes (NestJS)                 | Agora (Spring Boot)                                  |
+|--------------------------------|------------------------------------------------------|
+| Prisma + `prisma db push`      | Spring Data JPA (Hibernate) + Flyway (`db/migration`) |
+| class-validator                | Bean Validation (`jakarta.validation`) + `@StrongPassword` |
+| passport-jwt / @nestjs/jwt     | Spring Security + filtro JWT (`com.auth0:java-jwt`, HS256) |
+| bcryptjs                       | `BCryptPasswordEncoder` (lê os hashes antigos do bcryptjs) |
+| AuditService (fs)              | `AuditService` → `logs/audit.log` (mesmo formato JSON por linha) |
+| `src/prisma/seed.ts`           | `DataSeeder` (roda na inicialização, idempotente)     |
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Estrutura
 
-## Project setup
-
-```bash
-$ npm install
+```
+src/main/java/com/faculdade/backend
+├── config/        SecurityConfig, desserializador de datas
+├── controller/    AlunoController, EmpresaController, RecrutadorController
+├── domain/        entidades JPA (Aluno, Recrutador, Empresa, Contratacao, ...)
+├── dto/           requests/responses (records)
+├── exception/     ApiException + handler global (formato de erro igual ao NestJS)
+├── repository/    Spring Data JPA
+├── security/      JwtService, JwtAuthenticationFilter
+├── seed/          DataSeeder
+├── service/       regras de negócio (bloqueio de login, histórico de senhas, auditoria)
+└── validation/    @StrongPassword
+src/main/resources
+├── application.yml
+└── db/migration/V1__init.sql
 ```
 
-## Compile and run the project
+## Rotas
+
+| Método | Rota                                         | Auth |
+|--------|----------------------------------------------|------|
+| POST   | `/recrutadores`                              | –    |
+| POST   | `/recrutadores/login`                        | –    |
+| GET    | `/recrutadores` / `/recrutadores/{id}`       | JWT  |
+| PATCH  | `/recrutadores/{id}` / `/recrutadores/{id}/senha` | JWT |
+| DELETE | `/recrutadores/{id}`                         | JWT  |
+| POST   | `/recrutadores/oferta-contratacao/{id_recrutador}` | JWT |
+| POST   | `/aluno` (body `{ "alunos": [...] }`)        | –    |
+| GET    | `/aluno` / `/aluno/{id}`                     | JWT  |
+| PATCH  | `/aluno/{id}` / `/aluno/{id}/senha`          | JWT  |
+| DELETE | `/aluno/{id}`                                | JWT  |
+| GET    | `/empresa` / `/empresa/{id}`                 | –    |
+| POST   | `/empresa`                                   | –    |
+
+Regras de segurança mantidas: senha forte (10+ caracteres, maiúscula, minúscula, número e especial),
+bloqueio de 10 min após 5 logins errados, proibição de reutilizar as 3 últimas senhas e log de auditoria.
+
+## Executando
+
+Pré-requisitos: JDK 17+ e PostgreSQL (ou Docker).
 
 ```bash
-# development
-$ npm run start
+# a partir da raiz do repositório: sobe postgres + back-end + front-end + nginx
+docker compose up --build
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# ou só o back-end, localmente
+cd faculdade-back-end
+./mvnw spring-boot:run          # usa jdbc:postgresql://localhost:5432/faculdade (postgres/docker)
+./mvnw test                     # testes unitários
 ```
 
-## Run tests
+### Variáveis de ambiente
 
-```bash
-# unit tests
-$ npm run test
+| Variável        | Padrão                                       |
+|-----------------|----------------------------------------------|
+| `PORT`          | `3000`                                       |
+| `DB_URL`        | `jdbc:postgresql://localhost:5432/faculdade` |
+| `DB_USERNAME`   | `postgres`                                   |
+| `DB_PASSWORD`   | `docker`                                     |
+| `JWT_SECRET`    | `seuSegredoSuperSecreto` (troque em produção) |
+| `AUDIT_LOG_DIR` | `logs`                                       |
+| `SEED_EMPRESAS` | `true`                                       |
+| `SEED_ALUNOS`   | `true` (50 alunos de exemplo, senha `123456`) |
 
-# e2e tests
-$ npm run test:e2e
+### Banco de dados existente
 
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+O esquema é o mesmo do antigo `schema.prisma`. Se o banco já tiver sido criado pelo Prisma, o Flyway
+faz *baseline* na versão 1 e **não** recria as tabelas; os dados e as senhas continuam válidos.
