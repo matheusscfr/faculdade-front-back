@@ -59,7 +59,7 @@ bloqueio de 10 min após 5 logins errados, proibição de reutilizar as 3 últim
 Pré-requisitos: JDK 17+ e PostgreSQL (ou Docker).
 
 ```bash
-# a partir da raiz do repositório: sobe postgres + back-end + front-end + nginx
+# a partir da raiz: sobe postgres (5433) + back-end (3001) + front-end (http://localhost:3000)
 docker compose up --build
 
 # ou só o back-end, localmente

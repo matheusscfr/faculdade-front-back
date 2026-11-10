@@ -2,7 +2,7 @@
 // Client-side (navegador): usa NEXT_PUBLIC_API_URL
 export const API_URL = typeof window === 'undefined'
     ? process.env.API_URL || "http://backend:3000/"
-    : process.env.NEXT_PUBLIC_API_URL || "https://localhost/api/";
+    : process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/";
 
 export function AUTH_DASH() { 
     return {

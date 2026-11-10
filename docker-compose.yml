@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
     ports:
-      - "5432:5432"
+      - "5433:5432" # 5433 no host para não conflitar com um Postgres local
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: docker
@@ -19,6 +17,8 @@ services:
 
   backend:
     build: ./faculdade-back-end
+    ports:
+      - "3001:3000" # API acessível em http://localhost:3001
     environment:
       PORT: "3000"
       DB_URL: "jdbc:postgresql://postgres:5432/faculdade"
@@ -33,24 +33,12 @@ services:
 
   frontend:
     build: ./unidraft-ui
-    environment:
-      NEXT_PUBLIC_API_URL: "https://localhost/api/"
-      API_URL: "http://backend:3000/"
-      NODE_TLS_REJECT_UNAUTHORIZED: "0"
-    depends_on:
-      - postgres
-
-  nginx:
-    image: nginx:alpine
     ports:
-      - "443:443"
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
+      - "3000:3000" # aplicação em http://localhost:3000
+    environment:
+      API_URL: "http://backend:3000/"
     depends_on:
       - backend
-      - frontend
 
 volumes:
   postgres_data:
