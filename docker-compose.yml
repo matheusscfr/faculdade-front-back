@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:15-alpine
     ports:
-      - "5433:5432" # 5433 no host para não conflitar com um Postgres local
+      - "5434:5432" # 5434 no host para não conflitar com um Postgres local
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: docker
